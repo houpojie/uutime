@@ -1,11 +1,981 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Hello World</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="my567 的个人导航台">
+<title>my567</title>
+<script>/* 首屏即应用主题，避免深色用户看到白闪 */
+try{var t=localStorage.getItem('nav-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+:root{
+  /* Google 品牌四色 */
+  --g-blue:#4285f4;
+  --g-red:#ea4335;
+  --g-yellow:#fbbc05;
+  --g-green:#34a853;
+
+  --bg:#ffffff;
+  --txt:#202124;
+  --muted:#5f6368;
+  --dim:#70757a;
+  --faint:#9aa0a6;
+
+  --border:#dfe1e5;
+  --border-2:#dadce0;
+  --card:#ffffff;
+  --hover:#f8f9fa;
+  --search-bg:#ffffff;
+  --footer:#f2f2f2;
+
+  /* 图标托底：淡灰圆角块，让 favicon 有承载、更醒目 */
+  --ic-bg:#eef1f4;
+  --ic-line:rgba(60,64,67,.09);
+
+  --link:#1a73e8;
+
+  --shadow-hover:0 1px 6px rgba(32,33,36,.28);
+  --shadow-card:0 1px 2px 0 rgba(60,64,67,.30),0 1px 3px 1px rgba(60,64,67,.15);
+
+  --radius:8px;
+  --sans:Arial,"Helvetica Neue","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --logo:"Product Sans","Google Sans",Arial,"PingFang SC",sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#202124;
+  --txt:#e8eaed;
+  --muted:#9aa0a6;
+  --dim:#9aa0a6;
+  --faint:#80868b;
+
+  --border:#5f6368;
+  --border-2:#3c4043;
+  --card:#202124;
+  --hover:#303134;
+  --search-bg:#303134;
+  --footer:#171717;
+
+  /* 深色下用浅底，深色描线的 favicon 才不会糊掉 */
+  --ic-bg:#dde3ea;
+  --ic-line:rgba(0,0,0,.05);
+
+  --link:#8ab4f8;
+
+  --shadow-hover:0 1px 6px rgba(0,0,0,.55);
+  --shadow-card:0 1px 2px 0 rgba(0,0,0,.55),0 1px 3px 1px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  display:flex;flex-direction:column;min-height:100vh;
+  background:var(--bg);color:var(--txt);
+  font-family:var(--sans);font-size:14px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  transition:background .25s ease,color .25s ease;
+}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+.wrap{flex:1 0 auto;width:100%;max-width:1120px;margin:0 auto;padding:0 24px}
+
+/* ---------------- top bar ---------------- */
+.topbar{
+  display:flex;align-items:center;justify-content:flex-end;
+  gap:6px;padding:16px 4px 0;min-height:52px;
+}
+.tlink{
+  display:inline-flex;align-items:center;gap:7px;
+  height:32px;padding:0 9px;border-radius:4px;
+  font-size:13px;color:var(--txt);white-space:nowrap;
+}
+.tlink:hover{text-decoration:underline}
+.tlink.status{color:var(--muted)}
+.tlink.status:hover{text-decoration:none}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:0 0 8px;transition:background .3s}
+.dot.on{background:var(--g-green)}
+.dot.off{background:var(--g-red)}
+.icon-btn{
+  width:36px;height:36px;border:0;border-radius:50%;background:transparent;
+  color:var(--muted);display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;margin-left:2px;transition:background .2s,color .2s;
+}
+.icon-btn:hover{background:var(--hover);color:var(--txt)}
+.avatar{
+  width:32px;height:32px;border-radius:50%;margin-left:6px;flex:0 0 32px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--g-blue);color:#fff;font-size:14px;font-weight:500;
+  letter-spacing:-.01em;user-select:none;
+}
+
+/* ---------------- hero ---------------- */
+.hero{text-align:center;padding:38px 0 0}
+.logo{
+  font-family:var(--logo);
+  font-size:clamp(46px,8.4vw,76px);
+  font-weight:400;letter-spacing:-.045em;line-height:1.1;
+  user-select:none;
+}
+.logo span{display:inline-block;transition:transform .34s cubic-bezier(.2,.8,.3,1)}
+/* 悬停时五个字母依次弹起，像 Google doodle 的小彩蛋 */
+.logo:hover span{transform:translateY(-5px)}
+.logo:hover span:nth-child(2){transition-delay:.045s}
+.logo:hover span:nth-child(3){transition-delay:.09s}
+.logo:hover span:nth-child(4){transition-delay:.135s}
+.logo:hover span:nth-child(5){transition-delay:.18s}
+.c1{color:var(--g-blue)}
+.c2{color:var(--g-red)}
+.c3{color:var(--g-yellow)}
+.c4{color:var(--g-green)}
+[data-theme="dark"] .c1{color:#8ab4f8}
+[data-theme="dark"] .c2{color:#f28b82}
+[data-theme="dark"] .c3{color:#fdd663}
+[data-theme="dark"] .c4{color:#81c995}
+
+/* search —— Google 胶囊搜索框 */
+.search{position:relative;max-width:584px;margin:28px auto 0}
+.bing-mark{
+  position:absolute;left:15px;top:50%;transform:translateY(-50%);
+  width:21px;height:21px;border-radius:5px;pointer-events:none;
+  background:linear-gradient(135deg,#00bcf2,#008373);
+  color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:700;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 2px rgba(0,0,0,.13);
+}
+#q{
+  width:100%;height:46px;padding:0 62px 0 48px;
+  border:1px solid var(--border);border-radius:24px;
+  background:var(--search-bg);color:var(--txt);
+  font-family:var(--sans);font-size:16px;outline:none;
+  transition:box-shadow .18s ease,border-color .18s ease,background .2s;
+}
+#q::placeholder{color:var(--faint)}
+#q::-webkit-search-cancel-button,
+#q::-webkit-search-decoration{-webkit-appearance:none;appearance:none;display:none}
+.search:hover #q,.search:focus-within #q{
+  border-color:transparent;box-shadow:var(--shadow-hover);
+}
+.hint{
+  position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  font-size:11px;color:var(--faint);pointer-events:none;
+  border:1px solid var(--border-2);border-radius:4px;padding:1px 6px;line-height:1.5;
+}
+
+/* Hero 下方：问候 + 日期 + 农历 + 时钟 */
+.greet{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;
+  margin-top:20px;font-size:14px;color:var(--txt);
+  letter-spacing:.015em;line-height:1.5;
+}
+.greet .hi{color:var(--txt);font-weight:500}
+.greet .dt{color:var(--txt);font-weight:400;font-variant-numeric:tabular-nums}
+.greet .tm{
+  color:var(--txt);font-weight:500;letter-spacing:.04em;
+  font-variant-numeric:tabular-nums;
+}
+.greet .sep{color:var(--faint);font-size:11px;opacity:.75}
+
+/* ---------------- groups ---------------- */
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+main{padding:40px 0 0}
+.group{margin-bottom:36px;animation:rise .45s cubic-bezier(.2,.7,.3,1) both}
+
+/* 每个分组一套主色：h0 蓝 / h1 红 / h2 琥珀 / h3 绿 / h4 紫 / h5 青 */
+.h0{--g-fg:#1967d2;--g-tint:#e8f0fe;--g-deep:#1967d2;--g-glow:rgba(25,103,210,.34);--g-tint-2:#d2e3fc;--g-on:#ffffff}
+.h1{--g-fg:#c5221f;--g-tint:#fce8e6;--g-deep:#c5221f;--g-glow:rgba(197,34,31,.30);--g-tint-2:#fad2cf;--g-on:#ffffff}
+.h2{--g-fg:#a8620a;--g-tint:#fef3d7;--g-deep:#a8620a;--g-glow:rgba(168,98,10,.30);--g-tint-2:#fbe3a8;--g-on:#ffffff}
+.h3{--g-fg:#137333;--g-tint:#e6f4ea;--g-deep:#137333;--g-glow:rgba(19,115,51,.30);--g-tint-2:#ceead6;--g-on:#ffffff}
+.h4{--g-fg:#8430ce;--g-tint:#f3e8fd;--g-deep:#8430ce;--g-glow:rgba(132,48,206,.30);--g-tint-2:#e9d2fd;--g-on:#ffffff}
+.h5{--g-fg:#00707a;--g-tint:#e2f6f7;--g-deep:#00707a;--g-glow:rgba(0,112,122,.30);--g-tint-2:#c6ecef;--g-on:#ffffff}
+[data-theme="dark"] .h0{--g-fg:#8ab4f8;--g-tint:rgba(138,180,248,.16);--g-glow:rgba(138,180,248,.38);--g-tint-2:rgba(138,180,248,.26);--g-on:#12161c}
+[data-theme="dark"] .h1{--g-fg:#f28b82;--g-tint:rgba(242,139,130,.16);--g-glow:rgba(242,139,130,.36);--g-tint-2:rgba(242,139,130,.24);--g-on:#12161c}
+[data-theme="dark"] .h2{--g-fg:#fdd663;--g-tint:rgba(253,214,99,.15);--g-glow:rgba(253,214,99,.34);--g-tint-2:rgba(253,214,99,.22);--g-on:#12161c}
+[data-theme="dark"] .h3{--g-fg:#81c995;--g-tint:rgba(129,201,149,.16);--g-glow:rgba(129,201,149,.36);--g-tint-2:rgba(129,201,149,.24);--g-on:#12161c}
+[data-theme="dark"] .h4{--g-fg:#c58af9;--g-tint:rgba(197,138,249,.17);--g-glow:rgba(197,138,249,.38);--g-tint-2:rgba(197,138,249,.26);--g-on:#12161c}
+[data-theme="dark"] .h5{--g-fg:#78dce8;--g-tint:rgba(120,220,232,.16);--g-glow:rgba(120,220,232,.36);--g-tint-2:rgba(120,220,232,.24);--g-on:#12161c}
+
+.gh{display:flex;align-items:center;gap:11px;margin-bottom:15px;padding:0 2px}
+
+/* 分类标题：彩色立体胶囊
+   立体感来自四层——上浅下深的同色渐变、顶部高光、底部暗边、同色外投影 */
+.gh h2{
+  display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;
+  height:34px;padding:0 13px 0 4px;border-radius:999px;
+  /* 顶白 → 中淡彩 → 底深彩：模拟圆柱受光 */
+  background-image:linear-gradient(180deg,#ffffff 0%,var(--g-tint) 42%,var(--g-tint-2) 100%);
+  color:var(--g-fg);
+  font-size:13.5px;font-weight:600;letter-spacing:.015em;white-space:nowrap;
+  box-shadow:
+    0 0 0 1px var(--g-glow),
+    0 2px 0 0 var(--g-tint-2),
+    0 3px 3px -1px rgba(32,33,36,.06),
+    0 7px 14px -5px var(--g-glow),
+    inset 0 1px 0 rgba(255,255,255,1),
+    inset 0 -2px 4px -1px var(--g-glow);
+}
+/* 胶囊内圆形图标：实色底 + 球面高光 */
+.gh .gic{
+  width:26px;height:26px;flex:0 0 26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--g-on);background-color:var(--g-fg);
+  background-image:radial-gradient(circle at 34% 28%,rgba(255,255,255,.52),rgba(255,255,255,0) 64%);
+  box-shadow:inset 0 -1px 2px rgba(0,0,0,.22),0 1px 3px var(--g-glow);
+}
+.gh .gic svg{width:13px;height:13px;display:block}
+/* 数量：胶囊里的小实心药丸 */
+.gh .cnt{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:20px;height:20px;padding:0 6px;margin-left:1px;
+  border-radius:999px;font-size:11px;font-weight:600;font-style:normal;
+  font-variant-numeric:tabular-nums;
+  color:var(--g-on);background:var(--g-fg);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.30),0 1px 2px rgba(0,0,0,.15);
+}
+/* 深色：胶囊改为「彩色薄雾」，顶高光减弱、投影加深 */
+[data-theme="dark"] .gh h2{
+  background-image:linear-gradient(180deg,rgba(255,255,255,.16) 0%,var(--g-tint) 45%,var(--g-tint-2) 100%);
+  box-shadow:
+    0 0 0 1px var(--g-glow),
+    0 2px 0 0 rgba(0,0,0,.4),
+    0 4px 6px -2px rgba(0,0,0,.5),
+    0 8px 16px -5px rgba(0,0,0,.9),
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -2px 4px -1px rgba(0,0,0,.45);
+}
+.gh .rule{
+  flex:1;height:1px;min-width:24px;
+  background:linear-gradient(90deg,var(--g-glow),rgba(0,0,0,0));
+}
+[data-theme="dark"] .gh .rule{background:linear-gradient(90deg,var(--g-glow),rgba(255,255,255,0))}
+.gh .kw{font-size:11.5px;color:var(--faint);white-space:nowrap;letter-spacing:.02em}
+
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.card{
+  position:relative;
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;border-radius:var(--radius);
+  border:1px solid var(--border-2);background:var(--card);
+  transition:box-shadow .18s ease,border-color .18s ease,transform .18s ease;
+}
+/* 悬停时左缘浮出该分组主色的短竖线 */
+.card::before{
+  content:'';position:absolute;left:-1px;top:50%;width:2px;height:0;
+  transform:translateY(-50%);border-radius:2px;background:var(--g-fg);
+  opacity:0;transition:height .2s ease,opacity .2s ease;
+}
+.card:hover{
+  box-shadow:var(--shadow-card);border-color:transparent;transform:translateY(-2px);
+}
+.card:hover::before{height:20px;opacity:.85}
+[data-theme="dark"] .card:hover{border-color:var(--border)}
+.card.wide{grid-column:span 2}
+/* 离线卡片：链接仍可点，图标与标题略降饱和，扫一眼就能分出哪些暂时打不开；悬停即恢复 */
+.card.offline .ic{filter:grayscale(.45) opacity(.8)}
+.card.offline .nm{color:var(--dim)}
+.card.offline:hover .ic{filter:none}
+.card.offline:hover .nm{color:var(--g-fg)}
+
+.ic{
+  position:relative;
+  width:42px;height:42px;flex:0 0 42px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--ic-bg);color:var(--g-fg);
+  font-size:15px;font-weight:500;letter-spacing:-.01em;user-select:none;
+  box-shadow:inset 0 0 0 1px var(--ic-line);
+  overflow:hidden;
+  transition:transform .32s cubic-bezier(.34,1.56,.64,1),
+             background .22s ease,box-shadow .32s ease,filter .25s ease;
+}
+/* 字母只作加载占位，取到 favicon 后淡出 */
+.ic .lt{opacity:.6;transition:opacity .2s ease}
+.ic.has-fav .lt{opacity:0}
+.ic img{
+  position:absolute;width:28px;height:28px;
+  object-fit:contain;display:block;
+  opacity:0;will-change:transform,opacity;
+}
+/* 取到图标：带回弹的弹出式淡入，比纯 opacity 更有生气 */
+.ic.has-fav img{animation:favIn .5s cubic-bezier(.34,1.56,.64,1) both}
+/* 悬停时图形再自身放大一点，配合图标块形成两层回弹 */
+.card:hover .ic img,.card:focus-visible .ic img{scale:1.07}
+@keyframes favIn{
+  0%{opacity:0;transform:scale(.45) rotate(-16deg)}
+  62%{opacity:1}
+  100%{opacity:1;transform:scale(1) rotate(0deg)}
+}
+/* 全部源都失败：回到分组色字母徽标（深色下改用浅底 + 深色字母，与其它图标一致） */
+.ic.fallback{background:var(--g-tint);color:var(--g-fg)}
+[data-theme="dark"] .ic.fallback{background:var(--ic-bg);color:var(--g-deep)}
+.ic.fallback .lt{opacity:1}
+/* 悬停：图标块回弹放大、换成该分组淡色底、投一圈同色柔光 */
+.card:hover .ic,.card:focus-visible .ic{
+  transform:scale(1.16) rotate(-5deg) translateY(-1px);
+  background:var(--g-tint-2);
+  box-shadow:0 7px 16px -3px var(--g-glow),inset 0 0 0 1px rgba(0,0,0,.04);
+}
+[data-theme="dark"] .card:hover .ic,[data-theme="dark"] .card:focus-visible .ic{
+  background:#f8fafd;
+  box-shadow:0 8px 20px -4px var(--g-glow),0 0 0 1px rgba(255,255,255,.12);
+}
+.card:active .ic{transform:scale(1.05) rotate(-2deg)}
+/* 键盘聚焦：用分组主色描边，鼠标点击不触发 */
+.card:focus-visible{
+  outline:2px solid var(--g-fg);outline-offset:2px;
+  box-shadow:var(--shadow-card);border-color:transparent;
+}
+
+.mi{min-width:0;flex:1}
+.nm{
+  display:flex;align-items:center;gap:6px;
+  font-size:14px;color:var(--txt);font-weight:400;line-height:1.35;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.card:hover .nm{color:var(--g-fg)}
+.ds{
+  font-size:12px;color:var(--dim);margin-top:2px;line-height:1.45;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+/* 站点可达性指示器：检测中灰点呼吸 → 可访问绿点 / 不可访问红点 + 「离线」 */
+.st{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;
+  font-size:10.5px;line-height:1;letter-spacing:.02em;color:var(--faint);
+  transition:color .22s ease;
+}
+.st .dt{
+  width:7px;height:7px;border-radius:50%;flex:0 0 7px;background:var(--faint);
+  transition:background .25s ease,box-shadow .25s ease;
+}
+.st[data-st="pending"] .dt{animation:livePulse 1.1s ease-in-out infinite}
+@keyframes livePulse{0%,100%{opacity:.3;transform:scale(.86)}50%{opacity:.95;transform:scale(1)}}
+
+/* 可访问：绿点 + 一圈很淡的同色光 */
+.st[data-st="on"] .dt{background:#1e8e3e;box-shadow:0 0 0 2px rgba(30,142,62,.16)}
+/* 不可访问：红点 + 「离线」 */
+.st[data-st="off"]{color:#c5221f}
+.st[data-st="off"] .dt{background:#d93025;box-shadow:0 0 0 2px rgba(217,48,37,.16)}
+.st[data-st="off"] .lb{display:inline;animation:lbIn .26s ease both}
+@keyframes lbIn{from{opacity:0;transform:translateX(-3px)}to{opacity:1;transform:none}}
+.st .lb{display:none;font-style:normal;font-weight:400;white-space:nowrap}
+
+[data-theme="dark"] .st[data-st="on"] .dt{background:#81c995;box-shadow:0 0 0 2px rgba(129,201,149,.18)}
+[data-theme="dark"] .st[data-st="off"]{color:#f28b82}
+[data-theme="dark"] .st[data-st="off"] .dt{background:#f28b82;box-shadow:0 0 0 2px rgba(242,139,130,.18)}
+.arw{flex:0 0 auto;color:var(--faint);opacity:0;transition:opacity .18s ease,color .18s ease,transform .18s ease}
+.card:hover .arw{opacity:1;color:var(--g-fg);transform:translate(2px,-2px)}
+
+/* ---------------- footer ---------------- */
+.gfoot{
+  flex:0 0 auto;background:var(--footer);margin-top:56px;
+  font-size:13px;color:var(--dim);
+  border-top:1px solid var(--border-2);
+}
+.gfoot .row{
+  max-width:1120px;margin:0 auto;padding:13px 24px;
+  display:flex;flex-wrap:wrap;gap:8px 24px;
+  align-items:center;justify-content:space-between;
+}
+.quote{font-size:12.5px;color:var(--dim);line-height:1.6;max-width:720px;text-align:left}
+.quote span{color:var(--faint)}
+.gfoot .copy{font-size:12.5px;color:var(--faint);white-space:nowrap;flex:0 0 auto}
+
+@media(max-width:900px){
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .card.wide{grid-column:span 2}
+}
+@media(max-width:640px){
+  .wrap{padding:0 16px}
+  .topbar{gap:2px;padding-top:10px}
+  .tlink.status{display:none}
+  .hero{padding-top:26px}
+  .search{margin-top:22px}
+  #q{height:44px;font-size:15px;padding-right:20px}
+  .hint{display:none}
+  .gh{gap:9px;margin-bottom:13px}
+  .gh .kw{display:none}
+  .gh h2{height:31px;padding:0 11px 0 4px;gap:7px;font-size:13px}
+  .gh .gic{width:24px;height:24px;flex:0 0 24px}
+  .gh .gic svg{width:12px;height:12px}
+  .gh .cnt{height:18px;min-width:18px;padding:0 5px;font-size:10.5px}
+  main{padding-top:32px}
+  .cards{grid-template-columns:1fr;gap:8px}
+  .card.wide{grid-column:span 1}
+  .ic{width:38px;height:38px;flex:0 0 38px;border-radius:10px}
+  .ic img{width:25px;height:25px}
+  .st{font-size:10px;gap:4px}
+  .greet{gap:8px;font-size:13.5px;line-height:1.65}
+  .gfoot .row{padding:11px 16px;gap:4px;flex-direction:column;align-items:flex-start}
+  .quote{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
 </head>
 <body>
-  <h1>Hello, 888,World!</h1>
+
+<div class="wrap">
+
+  <header class="topbar">
+    <a class="tlink status" href="http://localhost:1234" target="_blank" rel="noopener noreferrer">
+      <span class="dot" id="lmDot"></span><span id="lmText">探测本地模型…</span>
+    </a>
+    <a class="tlink" href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <a class="tlink" href="https://mail.google.com" target="_blank" rel="noopener noreferrer">邮箱</a>
+    <button class="icon-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" id="themeIcon">
+        <path d="M21 12.8A8.5 8.5 0 1111.2 3a6.5 6.5 0 009.8 9.8z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div class="avatar" aria-hidden="true">M</div>
+  </header>
+
+  <section class="hero">
+    <h1 class="logo" aria-label="my567">
+      <span class="c1">m</span><span class="c2">y</span><span class="c3">5</span><span class="c4">6</span><span class="c2">7</span>
+    </h1>
+
+    <form class="search" id="sf" action="https://www.bing.com/search" method="get"
+          target="_blank" rel="noopener noreferrer" role="search">
+      <span class="bing-mark" aria-hidden="true">b</span>
+      <input id="q" name="q" type="search" placeholder="在 Bing 中搜索"
+             autocomplete="off" spellcheck="false" aria-label="使用 Bing 搜索">
+      <span class="hint">/</span>
+    </form>
+
+    <div class="greet" id="greet"></div>
+  </section>
+
+  <main id="main"></main>
+
+</div>
+
+<footer class="gfoot">
+  <div class="row">
+    <div class="quote" id="quote"></div>
+    <span class="copy">© 2026 my567 · 个人导航</span>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   数据区：想改站点，只动这里就够了
+   items: { n:名称, d:描述, u:链接, i:取不到图标时的字母, f:自定义图标地址(可选),
+            wide:true 占两列 }
+   每个卡片右侧的圆点会自动探测可达性：绿=可访问，红=不可访问。
+   图标默认取站点自己的 favicon，无需填写。
+   ============================================================ */
+const GROUPS = [
+  {
+    id: 'ai', name: 'AI 与本地模型', kw: '推理 · 下载 · 路由',
+    items: [
+      { n:'LM Studio', d:'localhost:1234 · 本地推理', u:'http://localhost:1234', i:'L' },
+      { n:'Hugging Face', d:'huggingface.co', u:'https://huggingface.co', i:'H' },
+      { n:'HF 镜像', d:'hf-mirror.com · 加速下载', u:'https://hf-mirror.com', i:'M' },
+      { n:'ModelScope', d:'modelscope.cn · 魔搭', u:'https://modelscope.cn', i:'S' },
+      { n:'Ollama', d:'ollama.com · 一键跑模型', u:'https://ollama.com', i:'O' },
+      { n:'OpenRouter', d:'openrouter.ai · 多模型路由', u:'https://openrouter.ai', i:'R' }
+    ]
+  },
+  {
+    id: 'dev', name: '开发工具', kw: '文档 · 调试 · 绘图',
+    items: [
+      { n:'GitHub', d:'github.com', u:'https://github.com', i:'G' },
+      { n:'MDN', d:'developer.mozilla.org', u:'https://developer.mozilla.org', i:'M' },
+      { n:'Stack Overflow', d:'stackoverflow.com', u:'https://stackoverflow.com', i:'S' },
+      { n:'Can I use', d:'caniuse.com · 兼容性', u:'https://caniuse.com', i:'C' },
+      { n:'regex101', d:'regex101.com · 正则调试', u:'https://regex101.com', i:'R' },
+      { n:'Excalidraw', d:'excalidraw.com · 手绘图', u:'https://excalidraw.com', i:'E' }
+    ]
+  },
+  {
+    id: 'market', name: '市场与行情', kw: 'A股 · 港股 · 行情',
+    items: [
+      { n:'东方财富', d:'eastmoney.com · A股行情', u:'https://www.eastmoney.com', i:'东' },
+      { n:'腾讯自选股', d:'gu.qq.com · 自选股', u:'https://gu.qq.com', i:'腾' },
+      { n:'雪球', d:'xueqiu.com · 社区观点', u:'https://xueqiu.com', i:'雪' },
+      { n:'同花顺', d:'10jqka.com.cn', u:'https://www.10jqka.com.cn', i:'同' },
+      { n:'上海证券交易所', d:'sse.com.cn', u:'https://www.sse.com.cn', i:'上' },
+      { n:'香港交易所', d:'hkex.com.hk', u:'https://www.hkex.com.hk', i:'港' }
+    ]
+  },
+  {
+    id: 'read', name: '阅读与知识', kw: '资讯 · 论文 · 社区',
+    items: [
+      { n:'Hacker News', d:'news.ycombinator.com', u:'https://news.ycombinator.com', i:'Y' },
+      { n:'arXiv', d:'arxiv.org · 论文预印本', u:'https://arxiv.org', i:'A' },
+      { n:'阮一峰周刊', d:'ruanyifeng.com', u:'https://www.ruanyifeng.com/blog/', i:'阮' },
+      { n:'少数派', d:'sspai.com · 效率与方法', u:'https://sspai.com', i:'少' },
+      { n:'掘金', d:'juejin.cn · 中文技术', u:'https://juejin.cn', i:'掘' },
+      { n:'维基百科', d:'wikipedia.org', u:'https://zh.wikipedia.org', i:'W' }
+    ]
+  },
+  {
+    id: 'tool', name: '效率工具', kw: '转换 · 压缩 · 翻译',
+    items: [
+      { n:'IT-Tools', d:'it-tools.tech · 万能小工具', u:'https://it-tools.tech', i:'T' },
+      { n:'Squoosh', d:'squoosh.app · 图片压缩', u:'https://squoosh.app', i:'S' },
+      { n:'TinyPNG', d:'tinypng.com', u:'https://tinypng.com', i:'P' },
+      { n:'JSON 格式化', d:'json.cn', u:'https://www.json.cn', i:'J' },
+      { n:'DeepL', d:'deepl.com · 翻译', u:'https://www.deepl.com', i:'D' },
+      { n:'Carbon', d:'carbon.now.sh · 代码截图', u:'https://carbon.now.sh', i:'C' }
+    ]
+  },
+  {
+    id: 'life', name: '生活与消遣', kw: '天气 · 地图 · 视频',
+    items: [
+      { n:'中国天气', d:'weather.com.cn', u:'https://www.weather.com.cn', i:'天' },
+      { n:'高德地图', d:'amap.com', u:'https://www.amap.com', i:'图' },
+      { n:'知乎', d:'zhihu.com', u:'https://www.zhihu.com', i:'知' },
+      { n:'哔哩哔哩', d:'bilibili.com', u:'https://www.bilibili.com', i:'B' },
+      { n:'YouTube', d:'youtube.com', u:'https://www.youtube.com', i:'Y' },
+      { n:'豆瓣', d:'douban.com · 书影音', u:'https://www.douban.com', i:'豆' }
+    ]
+  }
+];
+
+/* 分组图标（线性 16px，stroke 跟随分组主色） */
+const svg = d => `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICONS = [
+  svg('<path d="M8 2.2l1.5 4.3 4.3 1.5-4.3 1.5L8 13.8l-1.5-4.3L2.2 8l4.3-1.5z"/>'),
+  svg('<path d="M5.6 4.8L2.4 8l3.2 3.2M10.4 4.8L13.6 8l-3.2 3.2M9.2 3.2L6.8 12.8"/>'),
+  svg('<path d="M2 11.6l3.8-3.8 2.6 2.2 5.6-5.6"/><path d="M10.4 4.4H14V8"/>'),
+  svg('<path d="M8 4.1C6.6 3.2 4.6 2.9 2.5 2.9v9.1c2.1 0 4.1.3 5.5 1.2 1.4-.9 3.4-1.2 5.5-1.2V2.9C11.4 2.9 9.4 3.2 8 4.1z"/><path d="M8 4.1v9.1"/>'),
+  svg('<path d="M2.6 5h10.8M2.6 11h10.8"/><circle cx="6" cy="5" r="1.7"/><circle cx="10" cy="11" r="1.7"/>'),
+  svg('<circle cx="8" cy="8" r="3"/><path d="M8 1.6v1.3M8 13.1v1.3M1.6 8h1.3M13.1 8h1.3M3.5 3.5l.9.9M11.6 11.6l.9.9M12.5 3.5l-.9.9M4.4 11.6l-.9.9"/>')
+];
+
+const QUOTES = [
+  '困扰人的不是事情本身，而是人对事情的看法。 —— 爱比克泰德',
+  '不要渴望事情按你的意愿发生，而要愿意事情如其所是。',
+  '把能控制的做到极致，把不能控制的彻底放下。',
+  '为明天做计划，记着欣赏今天。',
+  '你有两只耳朵一张嘴，是为了多听少说。'
+];
+
+const ARROW = '<svg class="arw" width="13" height="13" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3.2 8.8L8.8 3.2M8.8 3.2H4.1M8.8 3.2v4.7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+const $ = s => document.querySelector(s);
+const main = $('#main');
+
+/* ============ 站点图标（favicon） ============
+   图标按「公共图标 CDN → 站点自身 /favicon.ico → 镜像」分级取，
+   900ms 未返回就并行启发下一级，谁先到用谁，避免某个源卡住整批。
+   全部失败则回退成分组主色的字母徽标。
+   结果写入 localStorage：成功 30 天、失败 3 天，之后打开不再请求。
+   ============================================ */
+const FAV_KEY = 'nav-fav-v2';
+const FAV_TTL = 30 * 864e5;
+const FAV_FAIL_TTL = 3 * 864e5;
+
+let favStore = {};
+try { favStore = JSON.parse(localStorage.getItem(FAV_KEY) || '{}') || {}; } catch (e) { favStore = {}; }
+
+function favGet(host){
+  const v = favStore[host];
+  if (!v) return null;
+  if (Date.now() - (v.t || 0) > (v.u ? FAV_TTL : FAV_FAIL_TTL)) { delete favStore[host]; return null; }
+  return v;
+}
+
+function favSet(host, url){
+  if (!host) return;
+  favStore[host] = { u: url || '', t: Date.now() };
+  try { localStorage.setItem(FAV_KEY, JSON.stringify(favStore)); } catch (e) {}
+}
+
+/* 本机/内网地址没有公共 CDN 可用，只打站点自己 */
+const isLocalHost = h => /^(localhost$|127\.|0\.0\.0\.0$|\[?::1\]?$|192\.168\.|10\.)/.test(h);
+
+/* 本地图标清单：与 icon/ 目录一一对应，改图标只需替换文件或改这里。
+   命中本地文件时不再发起任何网络请求；文件缺失会自动回退到在线源。 */
+const FAV_LOCAL = {
+  'arxiv.org': 'icon/arxiv.org.svg',
+  'caniuse.com': 'icon/caniuse.com.png',
+  'carbon.now.sh': 'icon/carbon.now.sh.png',
+  'developer.mozilla.org': 'icon/developer.mozilla.org.png',
+  'excalidraw.com': 'icon/excalidraw.com.png',
+  'github.com': 'icon/github.com.svg',
+  'gu.qq.com': 'icon/gu.qq.com.png',
+  'hf-mirror.com': 'icon/hf-mirror.com.ico',
+  'huggingface.co': 'icon/huggingface.co.ico',
+  'it-tools.tech': 'icon/it-tools.tech.svg',
+  'juejin.cn': 'icon/juejin.cn.png',
+  'modelscope.cn': 'icon/modelscope.cn.ico',
+  'news.ycombinator.com': 'icon/news.ycombinator.com.ico',
+  'ollama.com': 'icon/ollama.com.png',
+  'openrouter.ai': 'icon/openrouter.ai.png',
+  'regex101.com': 'icon/regex101.com.png',
+  'squoosh.app': 'icon/squoosh.app.png',
+  'sspai.com': 'icon/sspai.com.ico',
+  'stackoverflow.com': 'icon/stackoverflow.com.ico',
+  'tinypng.com': 'icon/tinypng.com.png',
+  'www.10jqka.com.cn': 'icon/www.10jqka.com.cn.png',
+  'www.amap.com': 'icon/www.amap.com.ico',
+  'www.bilibili.com': 'icon/www.bilibili.com.png',
+  'www.deepl.com': 'icon/www.deepl.com.ico',
+  'www.douban.com': 'icon/www.douban.com.ico',
+  'www.eastmoney.com': 'icon/www.eastmoney.com.png',
+  'www.hkex.com.hk': 'icon/www.hkex.com.hk.png',
+  'www.json.cn': 'icon/www.json.cn.ico',
+  'www.ruanyifeng.com': 'icon/www.ruanyifeng.com.ico',
+  'www.sse.com.cn': 'icon/www.sse.com.cn.png',
+  'www.weather.com.cn': 'icon/www.weather.com.cn.png',
+  'www.youtube.com': 'icon/www.youtube.com.png',
+  'www.zhihu.com': 'icon/www.zhihu.com.png',
+  'xueqiu.com': 'icon/xueqiu.com.ico',
+  'zh.wikipedia.org': 'icon/zh.wikipedia.org.png'
+};
+
+/* 需要特殊指定图标时，在 items 里加 f:'完整图标地址' 即可覆盖 */
+function favPlan(it){
+  let url = null, host = '';
+  try { url = new URL(it.u, location.href); host = url.hostname; } catch (e) {}
+  if (it.f) return { host, urls: [it.f] };
+  if (!host) return { host: '', urls: [] };
+
+  const urls = [];
+  const local = FAV_LOCAL[host];
+  if (local) urls.push(local);                 /* 本地文件：无网络请求、零延迟 */
+  if (!local && !isLocalHost(host)) urls.push(`https://favicon.im/${host}?larger=true`);
+  urls.push(url.origin + '/favicon.ico');
+  if (!local && !isLocalHost(host)) urls.push(`https://favicon.yandex.net/favicon/${host}`);
+  return { host, urls, local: !!local };
+}
+
+/* 进入视口附近才发起请求，首屏之外不抢带宽 */
+const favJobs = new Map();
+const favIO = ('IntersectionObserver' in window)
+  ? new IntersectionObserver(list => {
+      list.forEach(e => {
+        if (!e.isIntersecting) return;
+        const job = favJobs.get(e.target);
+        favJobs.delete(e.target);
+        favIO.unobserve(e.target);
+        if (job) job();
+      });
+    }, { rootMargin: '320px 0px' })
+  : null;
+
+function bindFavicon(tile, it){
+  const { host, urls, local } = favPlan(it);
+  if (!urls.length) { tile.classList.add('fallback'); return; }
+
+  const cached = (host && !local) ? favGet(host) : null;
+  if (!local && cached && !cached.u) { tile.classList.add('fallback'); return; }   /* 近期已确认取不到 */
+
+  const img = document.createElement('img');
+  img.alt = '';
+  img.decoding = 'async';
+  img.referrerPolicy = 'no-referrer';
+  img.addEventListener('error', () => { img.remove(); tile.classList.add('fallback'); });
+  tile.appendChild(img);
+
+  const probe = () => {
+    /* 缓存命中的地址排最前，直接复用浏览器缓存，不再重复下载 */
+    const list = Array.from(new Set((cached && cached.u ? [cached.u] : []).concat(urls)));
+    const timers = new Set();
+    let i = 0, active = 0, settled = false;
+
+    const finish = src => {
+      settled = true;
+      timers.forEach(clearTimeout);
+      timers.clear();
+      if (src) {
+        img.src = src;
+        tile.classList.remove('fallback');
+        tile.classList.add('has-fav');
+        if (!/^icon\//.test(src)) favSet(host, src);   /* 本地文件不进缓存，改图标立即生效 */
+      } else {
+        img.remove();
+        tile.classList.add('fallback');
+        favSet(host, '');
+      }
+    };
+
+    const next = () => {
+      if (settled) return;
+      if (i >= list.length) { if (!active) finish(null); return; }
+      const src = list[i++];
+      active++;
+      const p = new Image();
+      p.referrerPolicy = 'no-referrer';
+      p.onload = () => {
+        active--;
+        if (settled) return;
+        if (p.naturalWidth < 8) { next(); return; }   /* 空白占位图也算失败 */
+        finish(src);
+      };
+      p.onerror = () => { active--; if (!settled) next(); };
+      p.src = src;
+      /* 这一级迟迟不回就并行启发下一级，先到的胜出 */
+      timers.add(setTimeout(() => { if (!settled) next(); }, 900));
+    };
+
+    next();
+  };
+
+  if (favIO) { favJobs.set(tile, probe); favIO.observe(tile); }
+  else probe();
+}
+
+/* ---------- render ---------- */
+function renderGroups(){
+  main.innerHTML = '';
+  GROUPS.forEach((g, gi) => {
+    const sec = document.createElement('section');
+    sec.className = 'group h' + (gi % 6);
+
+    const head = document.createElement('div');
+    head.className = 'gh';
+    head.innerHTML = `<h2><span class="gic">${ICONS[gi % ICONS.length]}</span>${g.name}<em class="cnt">${g.items.length}</em></h2>
+      <span class="rule"></span>${g.kw ? `<span class="kw">${g.kw}</span>` : ''}`;
+    sec.appendChild(head);
+
+    const cards = document.createElement('div');
+    cards.className = 'cards';
+
+    g.items.forEach(it => {
+      const a = document.createElement('a');
+      a.className = 'card' + (it.wide ? ' wide' : '');
+      a.href = it.u;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.innerHTML = `
+        <span class="ic"><span class="lt">${it.i || it.n[0]}</span></span>
+        <span class="mi">
+          <span class="nm">${it.n}</span>
+          <span class="ds">${it.d}</span>
+        </span>
+        <span class="st" data-st="pending" title="正在检测可达性"><i class="dt"></i><b class="lb">离线</b></span>
+        ${ARROW}`;
+      bindFavicon(a.querySelector('.ic'), it);
+      watchLive(a);
+      cards.appendChild(a);
+    });
+
+    sec.appendChild(cards);
+    main.appendChild(sec);
+    /* 分组依次浮入 */
+    sec.style.animationDelay = (gi * 55) + 'ms';
+  });
+}
+
+/* ---------- 问候 / 公历 / 农历 / 时钟 ---------- */
+const LUNAR_DAY = ['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十',
+                   '十一','十二','十三','十四','十五','十六','十七','十八','十九','二十',
+                   '廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+
+/* 浏览器内置中国农历（Intl），无需任何历法表；不支持时静默省略 */
+function lunarText(d){
+  try {
+    const parts = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
+      month: 'long', day: 'numeric'
+    }).formatToParts(d);
+    const m = (parts.find(p => p.type === 'month') || {}).value;
+    const n = parseInt((parts.find(p => p.type === 'day') || {}).value, 10);
+    if (!m || !n) return '';
+    return '农历' + m + (LUNAR_DAY[n - 1] || n + '日');
+  } catch { return ''; }
+}
+
+const hhmm = d => String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+
+function renderGreet(){
+  const d = new Date(), h = d.getHours();
+  const g = h < 5 ? '夜深了' : h < 9 ? '早上好' : h < 12 ? '上午好'
+          : h < 14 ? '中午好' : h < 18 ? '下午好' : h < 23 ? '晚上好' : '夜深了';
+  const w = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'][d.getDay()];
+  const lu = lunarText(d);
+
+  $('#greet').innerHTML =
+    `<span class="hi">${g}</span><span class="sep">·</span>` +
+    `<span class="dt">${d.getMonth() + 1} 月 ${d.getDate()} 日 ${w}</span>` +
+    (lu ? `<span class="sep">·</span><span class="dt">${lu}</span>` : '') +
+    `<span class="sep">·</span><span class="tm" id="gtime">${hhmm(d)}</span>`;
+}
+
+/* ---------- search：纯 Bing 跳转 ---------- */
+const q = $('#q');
+
+q.addEventListener('keydown', e => {
+  if (e.key === 'Escape') q.value = '';
+});
+
+/* Enter → 表单原生提交到必应官方搜索（自动 URL 编码、新标签打开） */
+$('#sf').addEventListener('submit', e => {
+  if (!q.value.trim()) e.preventDefault();
+});
+
+/* 方向键在卡片间移动（焦点不在卡片上时交给浏览器默认滚动） */
+const DIRS = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 'd', ArrowUp: 'u' };
+
+function gridCols(){
+  const g = document.querySelector('.cards');
+  if (!g) return 3;
+  const tpl = getComputedStyle(g).gridTemplateColumns;
+  return tpl ? tpl.split(' ').filter(Boolean).length : 3;
+}
+
+document.addEventListener('keydown', e => {
+  const typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
+  if (e.key === '/' && !typing) { e.preventDefault(); q.focus(); q.select(); }
+
+  if (!(e.key in DIRS)) return;
+  const cards = Array.from(document.querySelectorAll('.cards .card'));
+  const i = cards.indexOf(document.activeElement);
+  if (i < 0) return;
+
+  e.preventDefault();
+  const step = DIRS[e.key];
+  const cols = gridCols();
+  const next = i + (step === 'd' ? cols : step === 'u' ? -cols : step);
+  cards[Math.max(0, Math.min(cards.length - 1, next))].focus();
+});
+
+/* ============ 站点可达性探测 ============
+   用 fetch(mode:'no-cors') 打站点根地址：只要服务器返回了任何响应（含 404/500）
+   就会 resolve，只有网络层失败（DNS 失败、拒绝连接、超时、证书错误）才 reject。
+   这样不需要读取响应体，也不受 CORS 限制，就能判断「站点是否可达」。
+   并发限 4 个；卡片靠近视口才探；结果缓存 5 分钟，刷新页面不重复打。
+   ============================================ */
+const LIVE_KEY = 'nav-live-v1';
+const LIVE_TTL = 5 * 60e3;
+const LIVE_TIMEOUT = 4000;
+const LIVE_MAX = 4;
+
+let liveStore = {};
+try { liveStore = JSON.parse(localStorage.getItem(LIVE_KEY) || '{}') || {}; } catch (e) { liveStore = {}; }
+
+function liveCached(url){
+  const v = liveStore[url];
+  if (!v || Date.now() - (v.t || 0) > LIVE_TTL) return null;
+  return v.ok;
+}
+
+function liveSave(url, ok){
+  liveStore[url] = { ok: !!ok, t: Date.now() };
+  try { localStorage.setItem(LIVE_KEY, JSON.stringify(liveStore)); } catch (e) {}
+}
+
+function paintLive(card, state){
+  const el = card.querySelector('.st');
+  if (!el) return;
+  el.dataset.st = state;
+  el.title = state === 'on' ? '可访问'
+           : state === 'off' ? '当前无法访问' : '正在检测可达性';
+  card.classList.toggle('offline', state === 'off');
+}
+
+async function pingOnce(url){
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), LIVE_TIMEOUT);
+  try {
+    await fetch(url, {
+      mode: 'no-cors', cache: 'no-store', credentials: 'omit',
+      referrerPolicy: 'no-referrer', signal: ctrl.signal
+    });
+    return true;
+  } catch (e) {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function pingSite(card){
+  const url = card.href;
+  let ok = await pingOnce(url);
+  /* 单次失败多半是抖动：隔 900ms 再确认一次，两次都失败才判离线 */
+  if (!ok) {
+    await new Promise(r => setTimeout(r, 900));
+    ok = await pingOnce(url);
+  }
+  paintLive(card, ok ? 'on' : 'off');
+  liveSave(url, ok);
+}
+
+/* 并发闸门：同时最多 4 个请求，避免一次打满连接拖慢首屏 */
+const liveJobs = [];
+let liveRunning = 0;
+function liveRun(){
+  while (liveRunning < LIVE_MAX && liveJobs.length) {
+    const job = liveJobs.shift();
+    liveRunning++;
+    job().finally(() => { liveRunning--; liveRun(); });
+  }
+}
+const liveEnqueue = job => { liveJobs.push(job); liveRun(); };
+
+/* 卡片靠近视口才探，首屏之外的站点不会一开页就发请求 */
+const liveIO = ('IntersectionObserver' in window)
+  ? new IntersectionObserver(list => {
+      list.forEach(e => {
+        if (!e.isIntersecting) return;
+        liveIO.unobserve(e.target);
+        liveEnqueue(() => pingSite(e.target));
+      });
+    }, { rootMargin: '220px 0px' })
+  : null;
+
+function watchLive(card){
+  const ok = liveCached(card.href);
+  if (ok !== null) { paintLive(card, ok ? 'on' : 'off'); return; }   /* 5 分钟内的结果直接复用 */
+  paintLive(card, 'pending');
+  if (liveIO) { liveIO.observe(card); return; }
+  liveEnqueue(() => pingSite(card));
+}
+
+/* ---------- 本地模型状态探测 ---------- */
+async function probeLM(){
+  const dot = $('#lmDot'), txt = $('#lmText');
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 1800);
+  try {
+    await fetch('http://localhost:1234/v1/models', { mode:'no-cors', signal: ctrl.signal, cache:'no-store' });
+    clearTimeout(timer);
+    dot.classList.remove('off'); dot.classList.add('on');
+    txt.textContent = '本地模型在线';
+  } catch {
+    clearTimeout(timer);
+    dot.classList.remove('on'); dot.classList.add('off');
+    txt.textContent = '本地模型未启动';
+  }
+}
+/* ---------- theme ---------- */
+const SUN = '<path d="M12 4v2M12 18v2M4 12H2M22 12h-2M5.6 5.6L4.2 4.2M19.8 19.8l-1.4-1.4M18.4 5.6l1.4-1.4M4.2 19.8l1.4-1.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.7"/>';
+const MOON = '<path d="M21 12.8A8.5 8.5 0 1111.2 3a6.5 6.5 0 009.8 9.8z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>';
+
+const savedTheme = localStorage.getItem('nav-theme');
+if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+
+function syncIcon(){
+  /* 深色时显示太阳（提示切到亮色），浅色时显示月亮 */
+  $('#themeIcon').innerHTML =
+    document.documentElement.dataset.theme === 'dark' ? SUN : MOON;
+}
+syncIcon();
+
+$('#themeBtn').addEventListener('click', () => {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem('nav-theme', next);
+  syncIcon();
+});
+
+/* ---------- 时钟：每 10 秒走一次；跨小时/跨天重建问候与日期 ---------- */
+let lastHour = new Date().getHours();
+renderGreet();
+setInterval(() => {
+  const d = new Date();
+  const t = document.getElementById('gtime');
+  if (t) t.textContent = hhmm(d);
+  if (d.getHours() !== lastHour) { lastHour = d.getHours(); renderGreet(); }
+}, 10000);
+
+/* ---------- init ---------- */
+renderGroups();
+probeLM();                      /* 卡片渲染后再探测，徽标才能被找到 */
+setInterval(probeLM, 60000);
+$('#quote').innerHTML = '<span>“</span>' + QUOTES[Math.floor(Math.random() * QUOTES.length)] + '<span>”</span>';
+</script>
 </body>
 </html>
